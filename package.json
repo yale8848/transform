@@ -1,0 +1,24 @@
+{
+  "name": "transform",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yale8848/transform.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yale8848/transform/issues"
+  },
+  "homepage": "https://github.com/yale8848/transform#readme",
+  "dependencies": {
+    "mathjax-node-page": "^1.4.0",
+    "phantom-html-to-pdf": "^0.5.4",
+    "phantomjs-prebuilt": "^2.1.14"
+  }
+}
