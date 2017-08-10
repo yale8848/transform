@@ -1,6 +1,16 @@
 var page = require('webpage').create();
-page.paperSize = { format: 'A4', orientation: 'portrait', margin: '0.8cm' };
-page.zoomFactor = 1;
+page.paperSize = {
+    format: 'A4',
+    orientation: 'portrait',
+    margin: '1.2cm',
+    footer: {
+        height: "1cm",
+        contents: phantom.callback(function(pageNum, numPages) {
+            return "<div style='text-align:center'>" + pageNum + " / " + numPages + "</div>";
+        })
+    }
+};
+//age.zoomFactor = 1;
 page.settings.loadImages = true;
 page.settings.javascriptEnabled = true;
 page.settings.localToRemoteUrlAccessEnabled = true;
@@ -14,18 +24,18 @@ page.onResourceRequested = function(requestData, networkRequest) {
 page.onResourceReceived = function(response) {
 
     if (response.stage == "end") {
-        ids[response.id] = true;;
+        ids[response.id] = true;
 
         // console.log('Response (#' + response.id);
     }
 };
 
 page.onResourceTimeout = function(request) {
-    ids.pop(request.id);
+    ids[request.id] = true;
     //console.log('Response (#' + request.id + '): ' + JSON.stringify(request));
 };
 page.onResourceError = function(resourceError) {
-    ids.pop(resourceError.id);
+    ids[resourceError.id] = true;
     // console.log('Unable to load resource (#' + resourceError.id + 'URL:' + resourceError.url + ')');
     // console.log('Error code: ' + resourceError.errorCode + '. Description: ' + resourceError.errorString);
 };
@@ -62,10 +72,24 @@ var capture = function(page, pageUrl, callback) {
                 return true;
             }
         });
+        if (allDone) {
+            console.log("+++222");
+        } else {
+            console.log("+++111");
+        }
         interval = setInterval(function() {
-            var allDone = page.evaluate(function() {
-                return window.allDone;
-            });
+            if (!allDone) {
+                var allDone1 = page.evaluate(function() {
+                    return window.allDone;
+                });
+                if (allDone1) {
+                    console.log("+++444");
+                } else {
+                    console.log("+++666");
+                }
+                allDone = allDone1;
+            }
+
             var finish = true;
             for (var i = 0; i < ids.length; i++) {
                 if (ids[i] == undefined) {
@@ -75,48 +99,33 @@ var capture = function(page, pageUrl, callback) {
                     finish = false;
                 }
             }
-            if (finish) {
-                console.log("+++finish");
-            }
 
-            if (allDone) {
-
-                console.log("+++allDone");
-
+            if (allDone && finish) {
                 clearInterval(interval);
                 callback();
             }
-        }, 100);
+        }, 1500);
     });
 };
 
 //var page = webpage.create();
 
-page.paperSize = {
-    format: 'Letter',
-    orientation: 'portrait',
-    margin: {
-        left: '.39in',
-        right: '.38in',
-        top: '.39in',
-        bottom: '0in'
-    }
-};
+
 
 var pageUrl = 'http://lftbjb.52fdw.com:9058/LFT-EditingSystem/page/knowdic/knowdic-view.html?uid=1:101:701:[699]';
-
+//var pageUrl = 'https://www.baidu.com/';
 capture(page, pageUrl, function(err) {
 
     if (err) {
         console.log(err);
     } else {
 
-        console.log(page.content);
-
+        //console.log(page.content);
+        page.render('test7.pdf', { format: 'pdf' });
         phantom.exit();
 
 
-        //page.render('test1.pdf', { format: 'pdf' });
+        //
     }
 
 });
