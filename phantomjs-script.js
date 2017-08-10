@@ -4,21 +4,33 @@ page.zoomFactor = 1;
 page.settings.loadImages = true;
 page.settings.javascriptEnabled = true;
 page.settings.localToRemoteUrlAccessEnabled = true;
-var id = 0;
-page.onResourceRequested = function(requestData, networkRequest) {};
+page.settings.resourceTimeout = 5000;
+var ids = [];
+page.onResourceRequested = function(requestData, networkRequest) {
+
+    ids[requestData.id] = false;
+    // console.log('requestData (#' + requestData.id);
+};
 page.onResourceReceived = function(response) {
 
+    if (response.stage == "end") {
+        ids[response.id] = true;;
+
+        // console.log('Response (#' + response.id);
+    }
 };
 
 page.onResourceTimeout = function(request) {
-    console.log('Response (#' + request.id + '): ' + JSON.stringify(request));
+    ids.pop(request.id);
+    //console.log('Response (#' + request.id + '): ' + JSON.stringify(request));
 };
 page.onResourceError = function(resourceError) {
-    console.log('Unable to load resource (#' + resourceError.id + 'URL:' + resourceError.url + ')');
-    console.log('Error code: ' + resourceError.errorCode + '. Description: ' + resourceError.errorString);
+    ids.pop(resourceError.id);
+    // console.log('Unable to load resource (#' + resourceError.id + 'URL:' + resourceError.url + ')');
+    // console.log('Error code: ' + resourceError.errorCode + '. Description: ' + resourceError.errorString);
 };
 page.onLoadFinished = function(status) {
-    console.log('Status: ' + status);
+    //console.log('Status: ' + status);
     // Do other things here...
 };
 /*page.open('http://lftbjb.52fdw.com:9058/LFT-EditingSystem/page/knowdic/knowdic-view.html?uid=1:101:701:[699]', function(status) {
@@ -50,18 +62,27 @@ var capture = function(page, pageUrl, callback) {
                 return true;
             }
         });
-
-        if (allDone) {
-            callback();
-            return;
-        }
-
         interval = setInterval(function() {
             var allDone = page.evaluate(function() {
                 return window.allDone;
             });
+            var finish = true;
+            for (var i = 0; i < ids.length; i++) {
+                if (ids[i] == undefined) {
+                    continue;
+                }
+                if (!ids[i]) {
+                    finish = false;
+                }
+            }
+            if (finish) {
+                console.log("+++finish");
+            }
 
             if (allDone) {
+
+                console.log("+++allDone");
+
                 clearInterval(interval);
                 callback();
             }
@@ -85,10 +106,17 @@ page.paperSize = {
 var pageUrl = 'http://lftbjb.52fdw.com:9058/LFT-EditingSystem/page/knowdic/knowdic-view.html?uid=1:101:701:[699]';
 
 capture(page, pageUrl, function(err) {
+
     if (err) {
         console.log(err);
     } else {
-        page.render('test.pdf', { format: 'pdf' });
+
+        console.log(page.content);
+
+        phantom.exit();
+
+
+        //page.render('test1.pdf', { format: 'pdf' });
     }
-    phantom.exit(0);
+
 });

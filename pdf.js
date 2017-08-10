@@ -1,6 +1,4 @@
-var conversion = require("phantom-html-to-pdf")({
-    phantomPath: require("phantomjs-prebuilt").path
-});
+var conversion = require("phantom-html-to-pdf")();
 var fs = require("fs");
 
 conversion({ html: "<h1>Hello World11</h1>" }, function(err, pdf) {
