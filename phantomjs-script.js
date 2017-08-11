@@ -1,4 +1,6 @@
 var page = require('webpage').create();
+
+var system = require('system');
 page.paperSize = {
     format: 'A4',
     orientation: 'portrait',
@@ -14,7 +16,8 @@ page.paperSize = {
 page.settings.loadImages = true;
 page.settings.javascriptEnabled = true;
 page.settings.localToRemoteUrlAccessEnabled = true;
-page.settings.resourceTimeout = 5000;
+page.settings.resourceTimeout = 3000;
+page.settings.userAgent = 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36';
 var ids = [];
 page.onResourceRequested = function(requestData, networkRequest) {
 
@@ -50,7 +53,8 @@ page.onLoadFinished = function(status) {
 
     }
 });*/
-
+var url = system.args[1];
+var output = system.args[2];
 
 
 var capture = function(page, pageUrl, callback) {
@@ -104,28 +108,19 @@ var capture = function(page, pageUrl, callback) {
                 clearInterval(interval);
                 callback();
             }
-        }, 1500);
+        }, 100);
     });
 };
 
-//var page = webpage.create();
 
-
-
-var pageUrl = 'http://lftbjb.52fdw.com:9058/LFT-EditingSystem/page/knowdic/knowdic-view.html?uid=1:101:701:[699]';
-//var pageUrl = 'https://www.baidu.com/';
-capture(page, pageUrl, function(err) {
+capture(page, url, function(err) {
 
     if (err) {
         console.log(err);
     } else {
-
-        //console.log(page.content);
-        page.render('test7.pdf', { format: 'pdf' });
-        phantom.exit();
-
-
-        //
+        setTimeout(function() {
+            page.render(output);
+            phantom.exit();
+        }, 1000);
     }
-
 });
